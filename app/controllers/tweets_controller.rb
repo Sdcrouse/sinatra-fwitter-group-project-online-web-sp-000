@@ -1,4 +1,5 @@
 class TweetsController < ApplicationController
+  # Note: Make sure that nobody can create a new tweet from ANY account except their own.
 
   #tweets index page
   get '/tweets' do
@@ -47,6 +48,38 @@ class TweetsController < ApplicationController
     else
       redirect to '/login'
     end
+  end
+
+  # Allows a user to edit their own tweet (and ONLY their own) if they're logged in.
+  # Redirect the user to /tweets if they try to edit someone else's tweet.
+  # Redirects users to the login page if they're logged out.
+  get '/tweets/:id/edit' do
+    "You have edited the tweet!"
+    # Logged in:
+    # lets a user view tweet edit form if they are logged in
+    # does not let a user edit a tweet they did not create
+      # From the tests, it looks like the logged in user should be able to view other people's tweets AND the Edit Tweet button.
+      # However, when they click Edit Tweet, they should be redirected to /tweets. 
+
+    # Logged out:
+    # does not load -- requests user to login
+      # Redirect them to the login page.
+
+  end
+
+  patch '/tweets/:id' do
+    # lets a user edit their own tweet if they are logged in
+    # does not let a user edit a text with blank content
+      # If the tweet's content is blank, don't change it; redirect the user to /tweets/:id/edit.
+    # I should probably add this extra safeguard: to redirect the user if they're not logged in, or if they try to edit someone else's tweet.
+  end
+
+  post '/tweets/:id/delete' do
+    # I should add safeguards here: redirect the user if they are logged out or if they try to delete someone else's tweet.
+    # Logged in:
+    # lets a user delete their own tweet if they are logged in
+    # does not let a user delete a tweet they did not create
+    #   If a user tries to do this, redirect them to /tweets without deleting the tweet.
   end
 
 end
