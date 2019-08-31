@@ -13,6 +13,7 @@ class TweetsController < ApplicationController
 
   #creates new tweet
   get '/tweets/new' do
+    binding.pry
     if logged_in?
       erb :'tweets/new'
     else
