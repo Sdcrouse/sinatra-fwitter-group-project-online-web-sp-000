@@ -68,12 +68,25 @@ class TweetsController < ApplicationController
 
   end
 
+  # Lets a user edit their own tweet if they are logged in.
+  # Does not let a user edit a text with blank content.
+  # For extra safety: Redirect the user if they're not logged in, or if they try to edit someone else's tweet.
   patch '/tweets/:id' do
-    "You have edited the tweet."
-    # lets a user edit their own tweet if they are logged in
-    # does not let a user edit a text with blank content
-      # If the tweet's content is blank, don't change it; redirect the user to /tweets/:id/edit.
-    # I should probably add this extra safeguard: to redirect the user if they're not logged in, or if they try to edit someone else's tweet.
+    if logged_in?
+      tweet = Tweet.find_by_id(params[:id])
+      if tweet.user == current_user
+        if params[:content].blank? # params[:content] == nil, "", " ", "  ", etc.
+          redirect to "/tweets/#{params[:id]}/edit"
+        else
+          tweet.update(content: params[:content])
+          redirect to "/tweets/#{params[:id]}"
+        end
+      else # Someone else tried to edit this tweet.
+        redirect to "/tweets"
+      end
+    else # The user is not logged in.
+      redirect to "/login"
+    end
   end
 
   delete '/tweets/:id/delete' do
