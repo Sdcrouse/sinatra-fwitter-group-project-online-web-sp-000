@@ -1,5 +1,4 @@
 class TweetsController < ApplicationController
-  # Note: Make sure that nobody can create a new tweet from ANY account except their own.
 
   #tweets index page
   get '/tweets' do
@@ -25,19 +24,19 @@ class TweetsController < ApplicationController
   # else go back to create new tweet
   post '/tweets' do
     if logged_in?
-     if params[:content] == ""
-      redirect to '/tweets/new'
-    else
-      @tweet = current_user.tweets.build(content: params[:content])
-      if @tweet.save
-        redirect to "/tweets/#{@tweet.id}"
-      else
+      if params[:content] == ""
         redirect to '/tweets/new'
+      else
+        @tweet = current_user.tweets.build(content: params[:content])
+        if @tweet.save
+          redirect to "/tweets/#{@tweet.id}"
+        else
+          redirect to '/tweets/new'
+        end
       end
+    else
+      redirect to '/login'
     end
-  else
-    redirect to '/login'
-  end
   end
 
   #displays info for a single tweet
@@ -54,7 +53,6 @@ class TweetsController < ApplicationController
   # Redirects the user to /tweets if they try to edit someone else's tweet (or if they try to edit a nonexistent tweet).
   # Redirects the user to the login page if they're logged out.
   get '/tweets/:id/edit' do 
-
     if logged_in?
       @tweet = Tweet.find_by_id(params[:id])
       if @tweet && @tweet.user == current_user
@@ -63,14 +61,13 @@ class TweetsController < ApplicationController
         redirect to '/tweets'
       end
     else # The user is not logged in.
-      redirect to '/login' # I wonder if we should put a flash message here?
+      redirect to '/login'
     end
-
   end
 
   # Lets a user edit their own tweet if they are logged in.
   # Does not let a user edit a text with blank content.
-  # For extra safety: Redirect the user if they're not logged in, or if they try to edit someone else's tweet.
+  # For extra safety: Redirects the user if they're not logged in, or if they try to edit someone else's tweet.
   patch '/tweets/:id' do
     if logged_in?
       tweet = Tweet.find_by_id(params[:id])
@@ -89,15 +86,19 @@ class TweetsController < ApplicationController
     end
   end
 
+  # Lets a user delete their own tweet if they are logged in
+  # Does not let a user delete a tweet they did not create
+  # Redirects to the /tweets page
   delete '/tweets/:id/delete' do
-    # I should add safeguards here: redirect the user if they are logged out or if they try to delete someone else's tweet.
-    # Logged in:
-    # lets a user delete their own tweet if they are logged in
-    # does not let a user delete a tweet they did not create
-    #   If a user tries to do this, redirect them to /tweets without deleting the tweet.
-    "You have deleted the tweet."
+    if logged_in?
+      tweet = Tweet.find_by_id(params[:id])
+      if tweet && tweet.user == current_user # The tweet exists, and its user is the current_user.
+        tweet.destroy
+      end
+      redirect to "/tweets" # Redirect to the tweets, regardless of whether or not the tweet was deleted.
+    else # The user is not logged in. This is an unlikely edge case.
+      redirect to "/login"
+    end
   end
 
-  # Remember to delete the .sqlite files before committing and pushing.
-  # Also, clear the session, User.all, and Tweet.all
 end
