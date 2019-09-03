@@ -1,4 +1,4 @@
-<%# if logged_in? %> <!-- Test this out! -->
+<% if logged_in? %>
 <%#= @error %>
   <form action='/tweets' method="post">
     Content:
@@ -11,6 +11,6 @@
 
   </form>
 
-  <%# else %>
-      <!-- <h1> You Must Be Logged in to Make Tweets </h1> -->
-  <%# end %>
+<% else %>
+  <h1>You Must Be Logged in to Make Tweets</h1>
+<% end %>
