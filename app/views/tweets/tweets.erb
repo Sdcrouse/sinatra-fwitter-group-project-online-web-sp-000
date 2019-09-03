@@ -1,0 +1,15 @@
+<p> Welcome, <%= current_user.username %>
+<h2> Tweets </h2>
+
+<% @tweets.each do |tweet| %>
+  <div>
+    <%= tweet.content %>
+    <a href="/tweets/<%= tweet.id %>">View Tweet</a>
+  </div>
+<% end %>
+
+<p><a href="/tweets/new">Create a new tweet!</a></p>
+
+<% if flash.has?(:error) %>
+  <%= flash[:error] %>
+<% end %>
